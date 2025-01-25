@@ -21,7 +21,6 @@ async function fetchLocation(search) {
     catch (error) {
         console.log("Error fetching data: ", error);
     }
-    
 
 }
 
