@@ -10,7 +10,7 @@
 <body>
   <nav id="nav-bar" class="navbar border navbar-expand-sm">
     <div class="container-fluid"> 
-      <a href="#" class="navbar-brand me-auto">
+      <a href="Index.html" class="navbar-brand me-auto">
         <img src = "images/reshot-icon-weather-X3N7PHUCLR.svg" width="45" height="45" class="d-inline-block">
         SkyCast
         </a>
@@ -29,21 +29,21 @@
       </div>
     </div>
   </nav>
-  <h1 class="mt-2">You have 5 results:</h1>
-
-  <ol id="search-list"></ol>
-
-  <!-- <script>
-    const urlParam = new URLSearchParams(window.location.search);
-    const searchLocation = urlParam.get("search-loc");
-
-    console.log(searchLocation);
-
-    if (searchLocation !== "") {
-        const data = fetchLocation(searchLocation);
-        console.log(data);
-    }
-  </script>  -->
+  <h1 class="mt-2 d-flex justify-content-center" id="No-of-Results"></h1>
+  <table class="table table-striped table-hover" id="result-table">
+    <thead>
+      <tr>
+        <th>Place Name</th>
+        <th>State</th>
+        <th>Country</th>
+        <th>Timezone</th>
+        <th>Population</th>
+      </tr>
+    </thead>
+    <tbody id="result-body">
+      
+    </tbody>
+  </table>
   <script src="search.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>

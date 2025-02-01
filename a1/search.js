@@ -1,5 +1,5 @@
 const searchParams = new URLSearchParams(window.location.search);
-const searchList = document.getElementById('search-list');
+const noOfResults = document.getElementById('No-of-Results');
 
 const searchLoc = searchParams.get('search-loc');
 
@@ -7,40 +7,75 @@ fetchLocation(searchLoc)
   .then((result) => {
     if (Array.isArray(result)) {
       if (result.length > 0) {
+        noOfResults.innerText = `${searchLoc} has ${result.length} results`;
+        console.log(result);
         result.forEach((elem) => {
-          const listElem = document.createElement("li");
-          listElem.innerText = `Name: ${elem.name}; Country Name: ${elem.country}; Timezone: ${elem.timezone}`;
-          searchList.appendChild(listElem);
-
-          listElem.addEventListener('click', () => {
-            //fetch the weather of that particular location
-            
-            const locationData = {
-                longitude: elem.longitude,
-                latitude: elem.latitude,
-                locName: elem.name,
-                country: elem.country
-
-            };
-
-            sessionStorage.setItem('selectedLocation', JSON.stringify(locationData));
-            window.location.href = 'Card.html';
-            // fetchWeather(elem.longitude, elem.latitude)
-            //     .then(result => console.log(result))
-            //     .catch(err => console.error(err));
-          });
+            addElementTable(elem);
         });
       } else {
-        const listElem = document.createElement("li");
-        listElem.innerText = "No locations found.";
-        searchList.appendChild(listElem);
+        noOfResults.innerText = 'No results found';
+
       }
     } else {
-      console.error("Expected an array but got:", result);
+        noOfResults.innerText = 'No results found';
+        console.error("Expected an array but got:", result);
     }
   })
   .catch((err) => console.error(err));
 
+//This function adds an element to the table so that we can 
+//
+
+// <tr>
+// <td>Delhi (Name)</td>
+// <td>India (country)</td>
+// <td>Asia/Kolkata (timezone)</td>
+// </tr>
+function addElementTable(resultData) {
+    const resultBody = document.getElementById('result-body');
+    const tableRow = document.createElement('tr');
+    const locNameDataCell = document.createElement('td');
+    const stateNameDataCell = document.createElement('td');
+    const locCountryDataCell = document.createElement('td');
+    const timezoneDataCell = document.createElement('td');
+    const populationDataCell = document.createElement('td');
+    
+
+    locNameDataCell.innerText = resultData.name;
+    if (resultData.hasOwnProperty('admin1')) {
+        stateNameDataCell.innerText = resultData.admin1
+    } else {
+        stateNameDataCell.innerText = 'Unknown';
+    }
+    locCountryDataCell.innerText = resultData.country;
+    timezoneDataCell.innerText = resultData.timezone;
+    populationDataCell.innerText = resultData.population;
+
+    tableRow.appendChild(locNameDataCell);
+    tableRow.appendChild(stateNameDataCell);
+    tableRow.appendChild(locCountryDataCell);
+    tableRow.appendChild(timezoneDataCell);
+    tableRow.appendChild(populationDataCell);
+    resultBody.appendChild(tableRow);   
+
+
+    tableRow.addEventListener('click', () => {
+        const locationData = {
+            longitude: resultData.longitude,
+            latitude: resultData.latitude,
+            locName: resultData.name,
+            country: resultData.country
+
+        };
+        
+        
+        sessionStorage.setItem('selectedLocation', JSON.stringify(locationData));
+        window.location.href = 'Card.html';
+        // fetchWeather(elem.longitude, elem.latitude)
+        //     .then(result => console.log(result))
+        //     .catch(err => console.error(err)); 
+    });
+}
 
 async function fetchLocation(search) {
     try {
@@ -48,7 +83,7 @@ async function fetchLocation(search) {
 
             
             if (search !== "") {
-                const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${search}&count=5`);
+                const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${search}`);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
