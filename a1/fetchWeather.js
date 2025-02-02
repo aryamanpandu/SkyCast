@@ -1,5 +1,5 @@
 const locationData = JSON.parse(sessionStorage.getItem('selectedLocation'));
-
+console.log(locationData);
 const locationName = document.getElementById('location-name');
 const countryName = document.getElementById('country-name');
 const currentTemp = document.getElementById('current-temp');
@@ -7,50 +7,97 @@ const maxTemp = document.getElementById('max-temp');
 const minTemp = document.getElementById('min-temp');
 const windspeed = document.getElementById('windspeed');
 
+const star = document.getElementById('star-shape');
+
 const month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November','December'];
 
-fetchWeather(locationData.longitude, locationData.latitude)
-    .then(result => {
-        console.log(result); 
-        displayCurrentWeather(result);      
-        display7dayForecast(result.daily);
-    })
-    .catch(err => console.error(err));
+//So instead of toggling
+// Think about it as storing whether the star will be lit up or not
+function toggleFavourite() {
+    if (!star.hasAttribute('style') || !star.style.fill) {
+        star.style.fill = '#ED8A19';
+        addToFavourite(locationData);
+    }
+    else {
+        star.style.fill = '';
+        removeFromFavourite(locationData);
+    }
+}
 
+
+//This funciton can be used to show the status in the star
+function showFavouriteStatus(locationData) {
+    let data = JSON.parse(sessionStorage.getItem('favouriteCities')) || [];
+    console.log(data);
+    console.log(locationData);
+
+    if (data.length === 0) {
+        star.style.fill = '';
+        return;
+    }
+    const idx = data.findIndex(data => data.longitude === locationData.longitude && data.latitude === locationData.latitude);
+    if (idx > -1) {
+        star.style.fill = '#ED8A19';
+    }
+    else {
+        star.style.fill = '';
+    }
+}   
+
+//When I click on the favourites button, I can add the city to my favourites. 
+// This will add that city into favourites
+//Consider facouriteCities as an array of the objects.
+// if favouriteCities is empty then store an empty array in favourite cities and then push 
+// 
+function addToFavourite(locationData) {
+    let cityArr;
+    if (!sessionStorage.getItem('favouriteCities')) {
+        cityArr = [];
+        cityArr.push(locationData);
+        sessionStorage.setItem('favouriteCities', JSON.stringify(cityArr));
+    }
+    else {
+        cityArr = JSON.parse(sessionStorage.getItem('favouriteCities'));
+        cityArr.push(locationData);
+        sessionStorage.setItem('favouriteCities', JSON.stringify(cityArr));
+    }
+
+    console.log(cityArr);
+}
+
+function removeFromFavourite(locationData) {
+    let cityArr = JSON.parse(sessionStorage.getItem('favouriteCities'));
+
+    if (!cityArr) {
+        return;
+    }
+
+    cityArr = cityArr.filter(city => city.longitude !== locationData.longitude && city.latitude !== locationData.latitude);
+    console.log(cityArr);
+    sessionStorage.setItem('favouriteCities', JSON.stringify(cityArr));
+}
 
 function displayCurrentWeather(resultData) {
     const card = document.getElementById('current-weather-card');
     const cardTitle = document.getElementById('current-weather-card-title');
     const cardBody = document.getElementById('current-weather-body');
-    console.log(resultData);
+
     const currentWeatherData = resultData.current;
-    console.log(currentWeatherData);
+
     const currDateTime = new Date(`${currentWeatherData.time}`);
-    console.log(currDateTime);
+
     const extraInfo = resultData.daily;
-
-    console.log(extraInfo);
     
-
-    cardTitle.innerText = `${locationData.locName}, ${locationData.country}`;
+    cardTitle.insertAdjacentHTML('beforeend', ` ${locationData.locName}, ${locationData.country}`);
     const info = ` <div class = ''>Current Temp: ${currentWeatherData.temperature_2m} °C</div>
                     <div class = ''>Date: ${currDateTime.getUTCDate()} ${month[currDateTime.getUTCMonth()]} ${currDateTime.getUTCFullYear()}</div>
                     <div class = ''>Max Temp: ${extraInfo.temperature_2m_max[0]} °C</div>
                     <div class = ''>Min Temp: ${extraInfo.temperature_2m_min[0]} °C</div>
                     <div class = ''>Windspeed: ${currentWeatherData.wind_speed_10m} km/h</div>
                     <div class = ''>Precipitaion: ${currentWeatherData.precipitation} mm</div>
-    `;
+                `;
 
     cardBody.innerHTML = info;
-
-    // current_weather: 
-    //     interval: 900
-    //     is_day: 0
-    //     temperature: 16.1
-    //     time: "2025-02-01T18:00"
-    //     weathercode: 2
-    //     winddirection:315
-    //     windspeed: 9.2
 }
 
 function display7dayForecast(dailyData) {
@@ -96,10 +143,26 @@ async function fetchWeather(longitude, latitude) {
         }
 
         const weatherJson = await response.json(); 
-        console.log(weatherJson);
+
         return weatherJson;
     }
     catch (error) {
         console.error("Error fetching data: ", error);
     }
 }
+
+
+fetchWeather(locationData.longitude, locationData.latitude)
+    .then(result => {
+        displayCurrentWeather(result);      
+        display7dayForecast(result.daily);
+    })
+    .catch(err => console.error(err));
+
+
+star.addEventListener('click',() => {
+    toggleFavourite();
+});
+
+showFavouriteStatus(locationData);
+
